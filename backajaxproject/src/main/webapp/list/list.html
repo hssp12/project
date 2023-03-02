@@ -1,0 +1,260 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+<script type = "text/javascript" src = "../js/jquery-1.12.4.min.js"></script>
+
+<script type = "text/javascript">
+
+var test;
+var addList = function() {
+    // url 쿼리스트링 자동생성 메서드 - $('form element').serialize()
+//     var param = $('#content form').serialize();
+    var param = {
+          subject: $('#content input').eq(0).val(),
+          content:$('#content input').eq(1).val()
+//           num:$('#content input').eq(2).val()
+    };
+    
+    $.post('http://localhost:8080/ajaxproject/list/add.do',$.param(param), function(data, msg) {
+    	$('#content input').eq(0).val(" ");
+        $('#content input').eq(1).val(" ");
+       console.log(data, msg);
+       console.log("ddddd?")
+       list();
+       //location.href = "list.jsp";
+    });
+ };
+ 
+ var update = function() {
+	    // url 쿼리스트링 자동생성 메서드 - $('form element').serialize()
+//	     var param = $('#content form').serialize();
+	    var param = {
+	          num: $('#content2 input').eq(0).val(),
+	          subject:$('#content2 input').eq(2).val(),
+	           content:$('#content2 input').eq(3).val()
+	    };
+	    
+	    $.post('http://localhost:8080/ajaxproject/list/update.do',$.param(param), function(data, msg) {
+	       console.log(data, msg);
+	       console.log("ddddd?")
+	       list();
+	       //location.href = "list.jsp";
+	    });
+	 };
+ 
+	var del = function() {
+		    // url 쿼리스트링 자동생성 메서드 - $('form element').serialize()
+//		     var param = $('#content form').serialize();
+		    var param = {
+		          num: $('#content2 input').eq(0).val(),
+// 		          subject:$('#content2 input').eq(1).val(),
+// 		           content:$('#content2 input').eq(2).val()
+		    };
+		    
+		    $.post('http://localhost:8080/ajaxproject/list/delete.do',$.param(param), function(data, msg) {
+		       console.log(data, msg);
+		       console.log("ddddd?")
+		       list();
+		       //location.href = "list.jsp";
+		    });
+	};
+
+   var list=function(){
+      
+      $.get('http://localhost:8080/ajaxproject/list/list.do', function(data){
+    	 $('tbody').html("");
+    	 console.log(data)
+         data.list.forEach(function(ele){
+        	 console.log(ele.date);
+
+            $('<tr/>').on('click',function(e){
+            			
+            			console.log( $(e.target).parent().children().first().html())
+            			var bbsnum = $(e.target).parent().children().first().html();
+            			
+            			loadData(bbsnum)
+						            			
+            	})
+               .append($('<td/>').html( ele.num))
+               .append($('<td/>').html( ele.subject))
+               .append($('<td/>').html(ele.content))
+//                .append($('<td/>').html(ele.date.split(" ")[0]))
+               .append($('<td/>').html(ele.date))
+               .append($('<td/>').html(ele.readcount))
+            .appendTo('tbody');
+//             $('tbody tr td a').on("click",function(e){
+//             	e.preventDefault();
+//             	console.log(e.target)
+            	
+//             })
+         });
+         }, "json");
+   };
+   
+   var loadData=function(num){
+	   console.log(num)
+		 $.ajax({
+//	 		 console.log("loadData");
+			  url: 'http://localhost:8080/ajaxproject/list/one.do',
+			  type: 'get',
+			  contentType:'application/x-www-form-urlencoded; charset=UTF-8',
+			  data: {num:num},
+			  dataType: "json",
+			  success: function(data){
+								console.log(data);
+								
+						$('#content2 input')
+								.eq(0).val(data.list[0].num)
+								.end().eq(1).val(data.list[0].date)
+								.end().eq(2).val(data.list[0].subject)
+								.end().eq(3).val(data.list[0].content)
+								$('#content2').show();
+							},
+				  error: function(xhr,status,err){
+					  alert("에러("+status+")");
+					  console.log(status);
+					  console.log('---------------');
+					  console.log(err);
+				  }
+				});
+		};
+   
+   $(function() {
+      list();
+      
+      $('#content').submit(function(e) {
+    	  e.preventDefault();
+//        $(this).find('span').remove();
+//        $(this).find(":text").each(function(idx,ele){
+//           if($(ele).val() == '') {
+//              $(ele).after('<span class="err">빈값허용안함</span>');
+//           }
+//        });
+       addList();
+//        return false;
+	
+    });
+      $('#content').hide();
+      $('#content2').hide();
+      $('#insertbtn').click(function () {
+    	  $('.table').hide();
+    	  $('#content').show();
+    	  $('#content2').hide();
+	   })
+		$('#contentbtn').click(function () {
+    	  $('#content').hide();
+    	  $('.table').show();
+		})	
+      
+      $('#updatebtn').click(function () {
+		update();
+		$('#content2').hide();
+		$('.table').show();
+	});
+      $('#deletebtn').click(function () {
+		del();
+		$('#content2').hide();
+		$('.table').show();
+	})
+	
+	$('#listbtn2').click(function () {
+		list();
+		$('#content').hide();
+		$('#content2').hide();
+		$('.table').show();
+	})
+	$('tbody').click(function () {
+		$('#content2').show();
+		$('.table').hide();
+	})
+	$('#listbtn').click(function () {
+		$('#content').hide();
+		$('#content2').hide();
+		$('.table').show();
+	})
+	
+   });
+</script>
+
+</head>
+<table class="table">
+<h2>List page</h2><button id="insertbtn" value="글작성" class="btn btn-primary">글작성</button>
+	
+	<thead>
+		<tr>
+			<th>번호</th>
+			<th>제목</th>
+			<th>내용</th>
+			<th>날짜</th>
+			<th>조회수</th>
+		</tr>
+	</thead>
+	<tbody>
+	</tbody>
+</table>
+
+
+
+
+
+
+<form id="content">
+<h2>입력페이지</h2>
+<!-- <input type="button" value="qjtnd"> -->
+	<div class="form-group">
+		<label for="subject">subject</label>
+		<input type="text" name="subject" id="subject" class="form-control">
+	</div>
+	<div class="form-group">
+		<label for="content">content</label>
+		<input type="text" name="content" id="content" class="form-control">
+	</div>
+<!-- 	<div class="form-group"> -->
+<!-- <%-- 		<label for="loc">loc</label><span>${FieldErrors.loc }</span> --%> -->
+<!-- <%-- 		<input name="loc" id="loc" value="${bean.loc }" class="form-control"> --%> -->
+<!-- 	</div> -->
+	<div class="form-group">
+		<button id="contentbtn" class="btn btn-primary" type="submit">입력</button>
+		<button type="reset" class="btn btn-default">취소</button>
+		<button type="button" class="btn btn-default" id="listbtn">목록</button>
+	</div>
+</form>
+
+
+
+<div id="content2" style="width:600px">
+<h2>상세페이지</h2>
+	<form>
+		<div class="form-group">
+			<label for="num">num</label>
+			<input type="num" name="num" id="num" class="form-control" readonly="readonly">
+		</div>
+		<div class="form-group">
+			<label for="date">date</label>
+			<input type="text" name="date" id="date" class="form-control" readonly="readonly">
+		</div>
+		<div class="form-group">
+			<label for="subject">subject</label>
+			<input type="text" name="subject" id="subject" class="form-control">
+		</div>
+		<div class="form-group">
+			<label for="content">content</label>
+			<input type="text" name="content" id="content" class="form-control">
+		</div>
+		
+		<div class="form-group">
+			<button id="updatebtn" class="btn btn-primary" type="button">수정</button>
+			<button id="deletebtn" class="btn btn-primary" type="button">삭제</button>
+			<button type="button" class="btn btn-default" id="listbtn2">목록</button>
+		</div>
+	</form>
+</div>
+
+
+</body>
+</html>
