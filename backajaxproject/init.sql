@@ -1,3 +1,8 @@
+create database lecture;
+use lecture;
+
+drop table list;
+
 create table list(
  num int primary key auto_increment,
  subject varchar(100) not null,
