@@ -96,7 +96,7 @@ public class ListDao {
    public List<ListDto> getList() {
 	  System.out.println("getlistdao");
 //	  PreparedStatement pstmt=null;
-      String sql = "select * from list";
+      String sql = "select * from list order by num desc";
       List<ListDto> list = new ArrayList<ListDto>();
       try {
          conn = BitSql.getConnection();
